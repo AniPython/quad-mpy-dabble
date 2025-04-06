@@ -11,4 +11,4 @@
 1. 手机安装 Dabble App
 2. 打开 Dabble App, 选择 Gamepad 模式
 3. 在 Dabble App 中选择蓝牙连接，连接到名为 "MPY ESP32" 的设备
-4. 在 Dabble App 中选择游戏手柄模式进行控制
+4. 使用按键进行控制
