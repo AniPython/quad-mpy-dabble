@@ -149,154 +149,41 @@ class Quad:
             self.setRestState(True)
 
 
-    def walk(self, t=360):
-        a = 16
-        ao = 50
-        b = 5
-        c = -30
-        co = 10
-
-        step1 = [90 + 2.0 * a - ao, 90 - 4.0 * a + ao,
-                 90 + c + 5 * b, 90 - c - 4 * b,
-                 90 + 3.0 * a - co, 90 - 1.0 * a + co,
-                 90 - c - 4 * b - 10, 90 + c + 6 * b]  # 右前(1,3)最后
-        step2 = [90 + 2.3 * a - ao, 90 - 2.0 * a + ao,
-                 90 + c + 5 * b, 90 - c - 0 * b,
-                 90 + 3.3 * a - co, 90 - 1.3 * a + co,
-                 90 - c - 4 * b - 10, 90 + c + 6 * b]  # 抬起 3
-        step3 = [90 + 3.0 * a - ao, 90 - 1.0 * a + ao,
-                 90 + c + 4 * b, 90 - c - 6 * b,
-                 90 + 4.0 * a - co, 90 - 2.0 * a + co,
-                 90 - c - 4 * b - 10, 90 + c + 5 * b]  # 左后(4,6)最后
-        step4 = [90 + 3.3 * a - ao, 90 - 1.3 * a + ao,
-                 90 + c + 4 * b, 90 - c - 6 * b,
-                 90 + 2.0 * a - co, 90 - 2.3 * a + co,
-                 90 - c - 0 * b - 10, 90 + c + 5 * b]  # 抬起 6
-        step5 = [90 + 4.0 * a - ao, 90 - 2.0 * a + ao,
-                 90 + c + 4 * b, 90 - c - 5 * b,
-                 90 + 1.0 * a - co, 90 - 3.0 * a + co,
-                 90 - c - 6 * b - 10, 90 + c + 4 * b]  # 左前(0,2)最后
-        step6 = [90 + 2.0 * a - ao, 90 - 2.3 * a + ao,
-                 90 + c + 0 * b, 90 - c - 5 * b,
-                 90 + 1.3 * a - co, 90 - 3.3 * a + co,
-                 90 - c - 6 * b - 10, 90 + c + 4 * b]  # 抬起 2
-        step7 = [90 + 1.0 * a - ao, 90 - 3.0 * a + ao,
-                 90 + c + 6 * b, 90 - c - 4 * b,
-                 90 + 2.0 * a - co, 90 - 4.0 * a + co,
-                 90 - c - 5 * b - 10, 90 + c + 4 * b]  # 右后(5,7)最后
-        step8 = [90 + 1.3 * a - ao, 90 - 3.3 * a + ao,
-                 90 + c + 6 * b, 90 - c - 4 * b,
-                 90 + 2.3 * a - co, 90 - 2.0 * a + co,
-                 90 - c - 5 * b - 10, 90 + c + 0 * b]  # 抬起 7
-
-        self._moveServos(t, step1)
-        self._moveServos(t / 3, step2)
-        self._moveServos(t, step3)
-        self._moveServos(t / 3, step4)
-        self._moveServos(t, step5)
-        self._moveServos(t / 3, step6)
-        self._moveServos(t, step7)
-        self._moveServos(t / 3, step8)
-
-
-    def walk1(self, steps=3, t=1000, dir=FORWARD):
-
-        self.attachServos()
-        if self.getRestState() == True:
-            self.setRestState(False)
-
-        amplitude = [
-            15, 15, 20, 20,
-            15, 15, 20, 20,
-        ]
-        period = [t, t, t / 2, t / 2,
-                  t, t, t / 2, t / 2]
-        offset = [0, 0, 0, 0, 0, 0, 0, 0]
-        phase = [
-            90, 90, 270, 90,
-            270, 270, 90, 270
-        ]
-
-        if dir == BACKWARD:
-            phase[0] = phase[1] = 270
-            phase[4] = phase[5] = 90
-
-        for i in range(self._servo_totals):
-            self._servo[i].SetO(offset[i])
-            self._servo[i].SetA(amplitude[i])
-            self._servo[i].SetT(period[i])
-            self._servo[i].SetPh(phase[i])
-
-        _final_time = float(utime.ticks_ms()) + period[0] * steps
-        _init_time = float(utime.ticks_ms())
-
-        while float(utime.ticks_ms()) < _final_time:
-            side = int((float(utime.ticks_ms()) - _init_time) / (period[0] / 2)) % 2
-            self._servo[0].refresh()
-            self._servo[1].refresh()
-            self._servo[4].refresh()
-            self._servo[5].refresh()
-            if side == 0:
-                self._servo[3].refresh()
-                self._servo[6].refresh()
-            else:
-                self._servo[2].refresh()
-                self._servo[7].refresh()
-
-            utime.sleep(0.001)
-
     def forward(self, steps=3, t=800):
-
         x_amp = 15
         z_amp = 15
-        ap = 10
+        ap = 15
         hi = 15
-        front_x = 6
         period = [t] * self._servo_totals
         amplitude = [x_amp, x_amp, z_amp, z_amp, x_amp, x_amp, z_amp, z_amp]
-        offset = [0 + ap - front_x,
-                  0 - ap + front_x,
-                  0 - hi,
-                  0 + hi,
-                  0 - ap - front_x,
-                  0 + ap + front_x,
-                  0 + hi,
-                  0 - hi
-                  ]
+        offset = [0 - ap, 0 + ap, 0 - hi, 0 + hi,
+                  0 + ap, 0 - ap, 0 + hi, 0 - hi]
         phase = [0, 0, 90, 90,
                  180, 180, 90, 90]
         self._execute(amplitude, offset, period, phase, steps)
 
     def backward(self, steps=3, t=800):
-
         x_amp = 15
         z_amp = 15
-        ap = 10
+        ap = 15
         hi = 15
-        front_x = 6
         period = [t] * self._servo_totals
         amplitude = [x_amp, x_amp, z_amp, z_amp, x_amp, x_amp, z_amp, z_amp]
-        offset = [0 + ap - front_x,
-                  0 - ap + front_x,
-                  0 - hi,
-                  0 + hi,
-                  0 - ap - front_x,
-                  0 + ap + front_x,
-                  0 + hi,
-                  0 - hi
-                  ]
+        offset = [0 - ap, 0 + ap, 0 - hi, 0 + hi,
+                  0 + ap, 0 - ap, 0 + hi, 0 - hi]
         phase = [180, 180, 90, 90,
                  0, 0, 90, 90]
         self._execute(amplitude, offset, period, phase, steps)
 
+
     def turn_L(self, steps=2, t=1000):
         x_amp = 15
         z_amp = 15
-        ap = 5
+        ap = 10
         hi = 23
         period = [t] * self._servo_totals
         amplitude = [x_amp, x_amp, z_amp, z_amp, x_amp, x_amp, z_amp, z_amp]
-        offset = [ap, -ap, -hi, +hi, -ap, ap, hi, -hi]
+        offset = [-ap, ap, -hi, +hi, ap, -ap, hi, -hi]
         phase = [180, 0, 90, 90, 0, 180, 90, 90]
 
         self._execute(amplitude, offset, period, phase, steps)
@@ -304,11 +191,11 @@ class Quad:
     def turn_R(self, steps=2, t=1000):
         x_amp = 15
         z_amp = 15
-        ap = 5
+        ap = 10
         hi = 23
         period = [t] * self._servo_totals
         amplitude = [x_amp, x_amp, z_amp, z_amp, x_amp, x_amp, z_amp, z_amp]
-        offset = [ap, -ap, -hi, +hi, -ap, ap, hi, -hi]
+        offset = [-ap, ap, -hi, +hi, ap, -ap, hi, -hi]
         phase = [0, 180, 90, 90, 180, 0, 90, 90]
 
         self._execute(amplitude, offset, period, phase, steps)
@@ -372,11 +259,12 @@ class Quad:
         self._execute(amplitude, offset, period, phase, steps)
 
     def moonwalk_L(self, steps=4, t=2000):
-        z_amp = 25
-        o = 5
+        z_amp = 30
+        hi = 15
+        ap = 10
         period = [t] * self._servo_totals
         amplitude = [0, 0, z_amp, z_amp, 0, 0, z_amp, z_amp]
-        offset = [0, 0, -z_amp - o, z_amp + o, 0, 0, z_amp + o, -z_amp - o]
+        offset = [-ap, ap, -hi, hi, ap, -ap, hi, -hi]
         phase = [0, 0, 0, 80, 0, 0, 160, 290]
 
         self._execute(amplitude, offset, period, phase, steps)
@@ -483,4 +371,5 @@ if __name__ == '__main__':
     while True:
         quad.forward()
         utime.sleep(0.5)
-
+        quad.backward()
+        utime.sleep(0.5)
